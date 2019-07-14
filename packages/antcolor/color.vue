@@ -5,13 +5,31 @@
         <div
           v-for="(item,key) in materialColors"
           :key="key"
-          class="color-selector-circle"
+          :class="{'color-selector-circle':true,'color-selector-active':item.checked}"
           :style="{background:item.variations[4].hex}"
+          @click="checkedMaterial(item)"
         ></div>
       </div>
     </div>
     <div class="beet-ant-wrapper">
-      <h1>Beet-Ant-Color</h1>
+      <div class="color-palette">
+        <h2 class="color-palette-header">{{checkMaterColors.color}}</h2>
+        <div class="color-palette-wrapper">
+          <div
+            class="color-palette-item"
+            v-for="(item,key) in checkMaterColors.variations"
+            :key="key"
+            :style="{background:item.hex}"
+            v-clipboard:copy="item.hex"
+            v-clipboard:success="onCopy"
+            v-clipboard:error="onError"
+          >
+            <span>{{item.weight}}</span>
+            <span :class="{'copied-indicator':true,'copied-active':item.checked}">Color copied!</span>
+            <span>{{item.hex}}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -21,7 +39,7 @@ export default {
   name: "beet-ant-color",
   data() {
     return {
-      materialColors: [
+      basicMaterial: [
         {
           color: "Red",
           variations: [
@@ -877,14 +895,42 @@ export default {
             }
           ]
         }
-      ]
+      ],
+      materialColors: [],
+      checkMaterColors: {},
+
+      currentColors: []
     };
   },
-  props: {},
-  computed: {},
-  mounted() {},
+  mounted() {
+    this.checkedMaterial(this.basicMaterial[0]);
+  },
   beforeDestroy() {},
-  methods: {}
+  methods: {
+    initMaterialState(arr, obj) {
+      let tmp = arr;
+      tmp.forEach(ele => {
+        ele.checked = false;
+        if (ele.color == obj) ele.checked = true;
+      });
+      return tmp;
+    },
+    checkedMaterial(val) {
+      console.log("click", val.color);
+      this.checkMaterColors = val;
+      this.materialColors = {};
+      this.materialColors = this.initMaterialState(
+        this.basicMaterial,
+        val.color
+      );
+    },
+    onCopy(val) {
+      console.log(val);
+    },
+    onError(error) {
+      console.log(error);
+    }
+  }
 };
 </script>
 
@@ -931,11 +977,68 @@ a {
   border-right: 0.25em solid #e0e0e0;
   align-items: center;
   &-circle {
-    width: 30px;
-    height: 30px;
-    border-radius: 30px;
+    width: 1.6em;
+    height: 1.6em;
+    border-radius: 1.6em;
     // border: 1px solid #78909c;
     margin: 5px;
+
+    &:after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      -webkit-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+      padding: 0.5em;
+      border: 0.25em solid;
+      border-radius: 50%;
+      transition: padding 250ms;
+    }
   }
+  &-active {
+    border: 2px solid #78909c;
+  }
+}
+.color-palette {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5em;
+
+  &-header {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    margin-bottom: 1em;
+    font-weight: 400;
+    color: #757575;
+  }
+  &-wrapper {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+  &-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-grow: 1;
+    margin: 0.25em 0;
+    padding: 1em;
+    border-radius: 0.25em;
+  }
+}
+.copied-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, 0);
+  transform: translate(-50%, 0);
+  opacity: 0;
+  transition: all 250ms;
 }
 </style>
