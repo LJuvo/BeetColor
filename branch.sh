@@ -31,16 +31,16 @@ do
             git push origin --delete $branchName
         ;;
         4)  
-            function gitBranch {
+
             br=`git branch | grep "*"`
             echo ${br/* /}
-            }
 
+            currentBranch=${br/* /}
             git add -A
             echo -n "输入commit内容："
             read commitInfo
             git commit -m "$commitInfo"
-            git push origin gitBranch
+            git push origin $currentBranch
         ;;
         5)  exit
         ;;
