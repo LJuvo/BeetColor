@@ -9,12 +9,14 @@ do
     printf "3):切换分支\n"
     printf "4):删除分支\n"
     printf "5):提交分支代码\n"
-    printf "7):删除当前分支并重新创建该分支\n"
-    printf "6):退出\n\n"
+    printf "6):删除当前分支并重新创建该分支\n"
+    printf "0):退出\n\n"
 
     echo -n "选择操作:"
     read checkNum
     case $checkNum in 
+        0)  exit
+        ;;
         1)  git branch -a
         ;;
         2)  echo -n "创建新分支(分支名):"
@@ -53,14 +55,16 @@ do
 
             exit
         ;;
-        6)  exit
-        ;;
-        7)  
+        6)  
 
             br=`git branch | grep "*"`
             currentThisBranch=${br/* /}
 
-            if $currentBranch!='master'
+            if [  "$currentThisBranch" == "master"  ] 
+            then
+                echo -n "不可操作当前分支:$currentThisBranch"
+            else
+                echo -n "操作"
                 git checkout master
                 git pull
                 echo -n "删除本地分支:$currentThisBranch"
@@ -69,10 +73,10 @@ do
                 git push origin --delete $currentThisBranch
                 git branch $currentThisBranch
                 git checkout $currentThisBranch
+                echo -n "提交新分支 $currentThisBranch至远端"
+                git push origin "$currentThisBranch":"$currentThisBranch"
                 
                 exit
-            then
-                echo -n "不可操作当前分支:$currentThisBranch"
 
             fi
         ;;
